@@ -20,10 +20,14 @@ function DQN.new(num_input, num_output, hidden_layer)
 	-- 	self.bias_array[layer] = {}
 	-- end
 
+
+
+
 	self.total_weight_layer = #self.weight_array
 
-	self.epsilon = 0.01
+	self.epsilon = 0.1
 	self.memory = {}
+	self.memory2 = {}
 
 	return self
 
@@ -79,6 +83,10 @@ end
 
 function DQN.remember(self, mem) --  state, next_state, action, reward
 	table.insert( self.memory, mem )
+end
+
+function DQN.remember2(self, mem) --  state, next_state, action, reward
+	table.insert( self.memory2, mem )
 end
 
 function DQN.set_weitght(self, weight_all )

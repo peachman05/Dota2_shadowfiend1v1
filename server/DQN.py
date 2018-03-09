@@ -23,7 +23,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size,num_hidden_node):
         # if you want to see Cartpole learning, then change to True
         self.render = False
-        self.load_model = True
+        self.load_model = False
         
         # get size of state and action
         self.state_size = state_size
@@ -192,14 +192,14 @@ class DQNAgent:
 
         
 
-        if self.episodeNumber % 10 == 0:
+        if self.episodeNumber % 20 == 0:
             pylab.figure(1)
             pylab.plot( self.scoreTemp, 'b')
             pylab.savefig("./save_graph/image.png")
 
-            pylab.figure(2)
-            pylab.plot( self.scoreTemp2, 'r')
-            pylab.savefig("./save_graph/image2.png")
+            # pylab.figure(2)
+            # pylab.plot( self.scoreTemp2, 'r')
+            # pylab.savefig("./save_graph/image2.png")
             
 
             print("write")

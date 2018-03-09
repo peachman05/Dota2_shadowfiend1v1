@@ -61,7 +61,6 @@ function CAddonTemplateGameMode:OnInitial()
 	action = {}
 
 	episode = 0
-	creepRound = 1
 
 	GameRules:GetGameModeEntity():SetThink( "state_loop", self, 1)
 
@@ -224,14 +223,21 @@ function CAddonTemplateGameMode:bot_loop()
 
 	state['Radian'] = new_state['Radian']
 	-- ------------------------
-	-- if creepRound % 5 == 0 then  --- force learning
-		
-	action['Radian'] = GameControl:hero_force_think(GameControl.TEAM_RADIAN)
-	-- else
-	-- 	action['Radian'] = dqn_agent:act(state['Radian']) - 1
-	-- end
+	if episode % 10 == 0 then  --- force learning		
+		action['Radian'] = GameControl:hero_force_think(GameControl.TEAM_RADIAN)
+	elseif episode % 15 == 0 then
+		action['Radian'] = GameControl:hero_force_think2(GameControl.TEAM_RADIAN)
+	else
+		action['Radian'] = dqn_agent:act(state['Radian']) - 1
+		-- print("act--")
+	end
+	-- action['Radian'] = 1
+	-- print( GameControl.hero['object']:GetAngles()[2] )
+
+	-- print("action :"..action['Radian'] )
 
 	local time_return = GameControl:runAction(action['Radian'], state['Radian'], GameControl.TEAM_RADIAN)
+	-- print( GameRules:GetGameTime())
 	
 	return time_return
 
@@ -244,20 +250,20 @@ function CAddonTemplateGameMode:botEnemy_loop()
 	end
 
 	new_state['Dire'] =  GameControl:getState(GameControl.TEAM_DIRE)
-	
+	GameControl.enemyHero['object']:Stop()
 	if check_done == false then
-		dqn_agent:remember2({state['Dire'], action['Dire'], reward['Dire'], new_state['Dire'], false})
+		-- dqn_agent:remember2({state['Dire'], action['Dire'], reward['Dire'], new_state['Dire'], false})
 		all_reward['Dire'] = all_reward['Dire'] + reward['Dire']
 		reward['Dire'] = 0
 	end
 
 	state['Dire'] = new_state['Dire']
 	------------------------
-	-- if creepRound % 5 == 0 then  --- force learning
+	-- if episode % 2 == 0 then  --- force learning
 		
-	action['Dire'] = GameControl:hero_force_think(GameControl.TEAM_DIRE)
+		action['Dire'] = GameControl:hero_force_think2(GameControl.TEAM_DIRE)
 	-- else
-	-- 	action['Dire'] = dqn_agent:act(state['Dire']) - 1
+		-- action['Dire'] = dqn_agent:act(state['Dire']) - 1
 	-- end
 
 	local time_return = GameControl:runAction(action['Dire'], state['Dire'], GameControl.TEAM_DIRE)

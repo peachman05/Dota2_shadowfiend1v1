@@ -6,9 +6,9 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 app = Flask(__name__)
 
-num_state = 31
-num_action = 5 
-num_hidden_node = [24,24]
+num_state = 16
+num_action = 8
+num_hidden_node = [120,120]
 # m = 
 
 dqn_agent = DQNAgent(num_state,num_action,num_hidden_node)
