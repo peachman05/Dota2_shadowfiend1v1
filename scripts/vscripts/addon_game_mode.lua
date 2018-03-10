@@ -223,14 +223,14 @@ function CAddonTemplateGameMode:bot_loop()
 
 	state['Radian'] = new_state['Radian']
 	-- ------------------------
-	if episode % 10 == 0 then  --- force learning		
-		action['Radian'] = GameControl:hero_force_think(GameControl.TEAM_RADIAN)
-	elseif episode % 15 == 0 then
-		action['Radian'] = GameControl:hero_force_think2(GameControl.TEAM_RADIAN)
-	else
+	-- if episode % 10 == 0 then  --- force learning		
+		-- action['Radian'] = GameControl:hero_force_think(GameControl.TEAM_RADIAN)
+	-- elseif episode % 15 == 0 then
+		-- action['Radian'] = GameControl:hero_force_think2(GameControl.TEAM_RADIAN)
+	-- else
 		action['Radian'] = dqn_agent:act(state['Radian']) - 1
 		-- print("act--")
-	end
+	-- end
 	-- action['Radian'] = 1
 	-- print( GameControl.hero['object']:GetAngles()[2] )
 
@@ -303,7 +303,7 @@ function CAddonTemplateGameMode:OnEntity_hurt(event)
 		local cur_health = GameControl.hero['object']:GetHealth()
 		if ( cur_health - GameControl.hero['old_health'] ) < -150 then
 			reward['Dire'] = 10
-			print("skill")
+			--print("skill")
 		end
 		GameControl.hero['old_health'] = cur_health
 	end
@@ -312,7 +312,7 @@ function CAddonTemplateGameMode:OnEntity_hurt(event)
 		local cur_health = GameControl.enemyHero['object']:GetHealth()
 		if ( cur_health - GameControl.enemyHero['old_health'] ) < -150 then
 			reward['Radian'] = 10
-			print("skill")
+			--print("skill")
 		end
 		GameControl.enemyHero['old_health'] = cur_health
 	end

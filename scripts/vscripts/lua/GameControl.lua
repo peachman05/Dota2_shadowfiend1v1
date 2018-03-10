@@ -33,7 +33,7 @@ function GameControl:InitialValue()
 		GameControl.hero['ability'][i] = GameControl.hero['object']:GetAbilityByIndex(i)
 	end
 
-	for i = 0,2 do
+	for i = 0,3 do
 		GameControl.hero['ability'][0]:UpgradeAbility(false)
 	end
 	GameControl.hero['old_health'] = GameControl.hero['object']:GetMaxHealth()
@@ -61,7 +61,7 @@ end
 
 function GameControl:resetThing() 
 	FindClearSpaceForUnit(GameControl.hero['object'], RandomVector(1000) , true)
-	FindClearSpaceForUnit(GameControl.enemyHero['object'], RandomVector(1000) , true)
+	FindClearSpaceForUnit(GameControl.enemyHero['object'], Vector(1300,1300,0) , true)
 	--RandomVector( RandomFloat( 0, 200 ))
 	GameControl.hero['object']:SetHealth( GameControl.hero['object']:GetMaxHealth() )
 	GameControl.enemyHero['object']:SetHealth( GameControl.enemyHero['object']:GetMaxHealth() )
@@ -96,7 +96,7 @@ function GameControl:runAction(action, state, team)
 		local old_yaw = hero['object']:GetAngles()
 		hero['object']:Stop()
 		hero['object']:SetAngles(0, (old_yaw[2]+20)%360, 0)
-		print("spin")
+		--print("spin")
 		return 0.002
 	elseif action == 2 then --- forward
 		local forward_vector = hero['object']:GetForwardVector()
@@ -132,9 +132,14 @@ function GameControl:runAction(action, state, team)
 		end
 
 	elseif action == 6 then --- attack
-		hero['object']:Stop()
-		hero['object']:MoveToTargetToAttack(enemyhero['object'])
-		return 0.8
+		local distance = CalcDistanceBetweenEntityOBB( hero['object'], enemyhero['object'])
+		if distance < hero['object']:GetAttackRange() or team == GameControl.TEAM_DIRE then
+			hero['object']:Stop()
+			hero['object']:MoveToTargetToAttack(enemyhero['object'])
+			return 0.5
+		else
+			return 1
+		end
 	elseif action == 7 then -- spin right
 		local old_yaw = hero['object']:GetAngles()
 		local new_yaw = old_yaw[2] - 20
@@ -143,7 +148,7 @@ function GameControl:runAction(action, state, team)
 		end
 		hero['object']:Stop()
 		hero['object']:SetAngles(0, new_yaw, 0)
-		print("spin")
+		-- print("spin")
 		return 0.002	
 	end
 
@@ -197,7 +202,7 @@ function GameControl:getState(team)
 	stateArray[16] = distance / 3000
 
 	-- for key,value in pairs(stateArray)do
-	-- 	print(key..value)
+	-- 	print(key.." "..value)
 	-- end
 
 	return stateArray
@@ -259,7 +264,7 @@ function GameControl:hero_force_think(team)
 	
 
 	local prob = math.random()
-	print("resultAngle:"..resultAngle)
+	--print("resultAngle:"..resultAngle)
 	if cond or cooldown3 > 0 then
 		if math.abs(resultAngle) < 130 then
 			return 1

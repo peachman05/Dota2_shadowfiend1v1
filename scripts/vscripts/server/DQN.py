@@ -23,7 +23,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size,num_hidden_node):
         # if you want to see Cartpole learning, then change to True
         self.render = False
-        self.load_model = False
+        self.load_model = True
         
         # get size of state and action
         self.state_size = state_size
@@ -45,7 +45,7 @@ class DQNAgent:
         self.epsilon = 1.0
         self.epsilon_decay = 0.999
         self.epsilon_min = 0.01
-        self.batch_size = 64
+        self.batch_size = 256
         self.train_start = 1000
         # create replay memory using deque
         self.memory = deque(maxlen=2000)
@@ -192,7 +192,7 @@ class DQNAgent:
 
         
 
-        if self.episodeNumber % 20 == 0:
+        if self.episodeNumber % 100 == 0:
             pylab.figure(1)
             pylab.plot( self.scoreTemp, 'b')
             pylab.savefig("./save_graph/image.png")
