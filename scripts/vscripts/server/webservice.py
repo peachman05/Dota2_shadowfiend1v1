@@ -6,7 +6,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
 app = Flask(__name__)
 
-num_state = 16
+num_state = 18
 num_action = 8
 num_hidden_node = [120,120]
 # m = 

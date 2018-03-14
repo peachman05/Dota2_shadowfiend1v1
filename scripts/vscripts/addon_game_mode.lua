@@ -223,14 +223,14 @@ function CAddonTemplateGameMode:bot_loop()
 
 	state['Radian'] = new_state['Radian']
 	-- ------------------------
-	-- if episode % 10 == 0 then  --- force learning		
-		-- action['Radian'] = GameControl:hero_force_think(GameControl.TEAM_RADIAN)
+	if episode % 10 == 0 then  --- force learning		
+		action['Radian'] = GameControl:hero_force_think(GameControl.TEAM_RADIAN)
 	-- elseif episode % 15 == 0 then
 		-- action['Radian'] = GameControl:hero_force_think2(GameControl.TEAM_RADIAN)
-	-- else
+	else
 		action['Radian'] = dqn_agent:act(state['Radian']) - 1
 		-- print("act--")
-	-- end
+	end
 	-- action['Radian'] = 1
 	-- print( GameControl.hero['object']:GetAngles()[2] )
 
@@ -259,12 +259,13 @@ function CAddonTemplateGameMode:botEnemy_loop()
 
 	state['Dire'] = new_state['Dire']
 	------------------------
-	-- if episode % 2 == 0 then  --- force learning
+	if episode % 5 == 0 then  --- force learning
 		
+		action['Dire'] = GameControl:hero_force_think(GameControl.TEAM_DIRE)
+	else
 		action['Dire'] = GameControl:hero_force_think2(GameControl.TEAM_DIRE)
-	-- else
 		-- action['Dire'] = dqn_agent:act(state['Dire']) - 1
-	-- end
+	end
 
 	local time_return = GameControl:runAction(action['Dire'], state['Dire'], GameControl.TEAM_DIRE)
 	
@@ -279,11 +280,12 @@ function CAddonTemplateGameMode:OnEntity_kill(event)
 
 	if(killed:GetName() == GameControl.nameHero )then
 		if check_done == false then
+			local dh = ( GameControl.hero['object']:GetHealth() - GameControl.enemyHero['object']:GetHealth() ) / 10
 			if killed:GetTeam() == DOTA_TEAM_GOODGUYS then
 				-- reward['Radian'] = -1000
-				reward['Dire'] = 100
+				reward['Radian'] = dh
 			else 
-				reward['Radian'] = 100
+				reward['Radian'] = dh
 				-- reward['Dire'] = -1000
 			end
 			print("die-------")

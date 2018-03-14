@@ -23,7 +23,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size,num_hidden_node):
         # if you want to see Cartpole learning, then change to True
         self.render = False
-        self.load_model = True
+        self.load_model = False
         
         # get size of state and action
         self.state_size = state_size
@@ -172,38 +172,48 @@ class DQNAgent:
         return dict_send
 
     def run(self, data):
-        data_train = data['mem'][32:]
-        # print(data_train)
-        for i in data_train:
-            self.append_sample(i[0], i[1], i[2], i[3], i[4])
         
-        error = self.train_model()
-        self.update_target_model()
-
         if data['team'] == 0 : # radian
+
+            data_train = data['mem'][32:]
+            # print(data_train)
+            for i in data_train:
+                self.append_sample(i[0], i[1], i[2], i[3], i[4])
+            
+            error = self.train_model()
+            self.update_target_model()
+
+
             self.scoreTemp.append(data['all_reward']) 
+            # print("test")
+            # print(self.scoreTemp)
         
             
 
         else:
-            self.scoreTemp2.append(data['all_reward']) 
-            print("episode:", self.episodeNumber,"reward:", self.scoreTemp[-1], self.scoreTemp2[-1])
-            self.episodeNumber += 1
-
+            # self.scoreTemp2.append(data['all_reward']) 
+            print("episode:", self.episodeNumber,"reward:", self.scoreTemp[-1])
+            
         
 
-        if self.episodeNumber % 100 == 0:
-            pylab.figure(1)
-            pylab.plot( self.scoreTemp, 'b')
-            pylab.savefig("./save_graph/image.png")
+            if self.episodeNumber % 5 == 0:
+                self.scoresMean.append( np.mean( self.scoreTemp ) )
+                self.scoreTemp = []
 
-            # pylab.figure(2)
-            # pylab.plot( self.scoreTemp2, 'r')
-            # pylab.savefig("./save_graph/image2.png")
-            
+            if self.episodeNumber % 50 == 0:
+                pylab.figure(1)
+                pylab.plot( self.scoresMean, 'b')
+                pylab.savefig("./save_graph/image.png")
 
-            print("write")
-            self.model.save_weights("weight_save.h5")
+                # pylab.figure(2)
+                # pylab.plot( self.scoreTemp2, 'r')
+                # pylab.savefig("./save_graph/image2.png")
+                
+
+                print("write")
+                self.model.save_weights("weight_save.h5")
+
+            self.episodeNumber += 1
         
           
      
