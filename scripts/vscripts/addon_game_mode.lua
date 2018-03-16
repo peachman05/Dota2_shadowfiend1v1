@@ -259,13 +259,13 @@ function CAddonTemplateGameMode:botEnemy_loop()
 
 	state['Dire'] = new_state['Dire']
 	------------------------
-	if episode % 5 == 0 then  --- force learning
+	-- if episode % 5 == 0 then  --- force learning
 		
-		action['Dire'] = GameControl:hero_force_think(GameControl.TEAM_DIRE)
-	else
+		-- action['Dire'] = GameControl:hero_force_think(GameControl.TEAM_DIRE)
+	-- else
 		action['Dire'] = GameControl:hero_force_think2(GameControl.TEAM_DIRE)
 		-- action['Dire'] = dqn_agent:act(state['Dire']) - 1
-	end
+	-- end
 
 	local time_return = GameControl:runAction(action['Dire'], state['Dire'], GameControl.TEAM_DIRE)
 	

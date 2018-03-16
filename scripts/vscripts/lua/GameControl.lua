@@ -336,11 +336,11 @@ function GameControl:hero_force_think2(team)
 
 	local prob = math.random()
 	-- print("dis:"..distance)
-	if  (distance > range1 - 50) and (distance < range1 + 50) and cooldown1 == 0 then
+	if  (distance > range1 - 200) and (distance < range1 + 200) and cooldown1 == 0 then
 		return 3
-	elseif (distance > range2 - 50) and (distance < range2 + 50) and cooldown2 == 0 then
+	elseif (distance > range2 - 200) and (distance < range2 + 200) and cooldown2 == 0 then
 		return 4 
-	elseif (distance > range3 - 50) and (distance < range3 + 50) and cooldown3 == 0 then
+	elseif (distance > range3 - 200) and (distance < range3 + 200) and cooldown3 == 0 then
 		return 5
 
 	else

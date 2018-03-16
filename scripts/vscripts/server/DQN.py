@@ -23,7 +23,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size,num_hidden_node):
         # if you want to see Cartpole learning, then change to True
         self.render = False
-        self.load_model = False
+        self.load_model = True
         
         # get size of state and action
         self.state_size = state_size
