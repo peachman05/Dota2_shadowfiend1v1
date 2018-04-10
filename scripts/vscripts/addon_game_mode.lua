@@ -61,6 +61,7 @@ function CAddonTemplateGameMode:OnInitial()
 	action = {}
 
 	episode = 0
+	timeStep = 0
 
 	GameRules:GetGameModeEntity():SetThink( "state_loop", self, 1)
 
@@ -211,6 +212,7 @@ function CAddonTemplateGameMode:bot_loop()
 
 
 		episode = episode + 1
+		timeStep = 0
 		ai_state = STATE_UPDATEMODEL
 	
 	else
@@ -259,16 +261,16 @@ function CAddonTemplateGameMode:botEnemy_loop()
 
 	state['Dire'] = new_state['Dire']
 	------------------------
-	-- if episode % 5 == 0 then  --- force learning
-		
+	if timeStep % 5 == 0 then  --- force learning
+		action['Dire'] = RandomInt(1, 8) - 1
 		-- action['Dire'] = GameControl:hero_force_think(GameControl.TEAM_DIRE)
-	-- else
+	else
 		action['Dire'] = GameControl:hero_force_think2(GameControl.TEAM_DIRE)
 		-- action['Dire'] = dqn_agent:act(state['Dire']) - 1
-	-- end
+	end
 
 	local time_return = GameControl:runAction(action['Dire'], state['Dire'], GameControl.TEAM_DIRE)
-	
+	timeStep = timeStep + 1
 	return time_return
 
 end

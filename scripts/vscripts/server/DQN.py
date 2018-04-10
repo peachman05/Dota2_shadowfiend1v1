@@ -1,19 +1,18 @@
 import sys
-import gym
-import pylab
 import random
 import numpy as np
 from collections import deque
 from keras.layers import Dense
 from keras.optimizers import Adam
+print("11111111")
 from keras.models import Sequential
-import keras
 import tensorflow as tf
 import keras.backend as K
+print("2222222")
 import csv
 
 config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
+# config.gpu_options.allow_growth = True
 session = tf.Session(config=config)
 
 
@@ -23,21 +22,14 @@ class DQNAgent:
     def __init__(self, state_size, action_size,num_hidden_node):
         # if you want to see Cartpole learning, then change to True
         self.render = False
-        self.load_model = True
+        self.load_model = False
         
         # get size of state and action
         self.state_size = state_size
         self.action_size = action_size
         self.num_hidden_node = num_hidden_node
 
-        # for plot graph
-        self.episodesMean = []
-        self.scoreTemp = []
-        self.scoreTemp2 = []
-        self.scoresMean = []
-        self.episodeNumber = 0
-
-        self.errorValue = []
+        logs_path = 'tmp/tensorflow_logs/weaver_120x120/'
 
         # These are hyper parameters for the DQN
         self.discount_factor = 0.99
@@ -50,11 +42,16 @@ class DQNAgent:
         # create replay memory using deque
         self.memory = deque(maxlen=2000)
 
+        self.episodeNumber = 1
+        self.rewardKeep = []
+        self.countKeep = []
+
         # Session Setup & graph
         self.sess = tf.Session(config=config)
-        from keras import backend as K
         K.set_session(self.sess)
         self.tf_graph = tf.get_default_graph()
+
+       
 
 
         # create main model and target model
@@ -62,6 +59,16 @@ class DQNAgent:
             self.model = self.build_model()
             self.target_model = self.build_model()
             self.sess.run(tf.global_variables_initializer())
+
+            self.var_reward = tf.placeholder(tf.float32, name='target')
+            self.var_error = tf.placeholder(tf.float32, name='error')
+            # self.var_reward = tf.abs(self.var_reward)
+            tf.summary.scalar('reward', self.var_reward)
+            tf.summary.scalar('error', self.var_error)
+
+            self.merged_summary_op = tf.summary.merge_all()
+
+            self.summary_writer = tf.summary.FileWriter(logs_path, graph=tf.get_default_graph())
 
 
             if self.load_model:
@@ -81,9 +88,9 @@ class DQNAgent:
     # state is input and Q Value of each action is output of network
     def build_model(self):
         model = Sequential()
-        model.add(Dense(90, input_dim=self.state_size, activation='relu',
+        model.add(Dense(24, input_dim=self.state_size, activation='relu',
                         kernel_initializer='he_uniform'))
-        model.add(Dense(90, activation='relu',
+        model.add(Dense(24, activation='relu',
                         kernel_initializer='he_uniform'))
         model.add(Dense(self.action_size, activation='linear',
                         kernel_initializer='he_uniform'))
@@ -113,15 +120,18 @@ class DQNAgent:
 
     # pick samples randomly from replay memory (with batch_size)
     def train_model(self):
+        
         if len(self.memory) < self.train_start:
             return
         batch_size = min(self.batch_size, len(self.memory))
         mini_batch = random.sample(self.memory, batch_size)
 
+        # print("inn")
+
         update_input = np.zeros((batch_size, self.state_size))
         update_target = np.zeros((batch_size, self.state_size))
         action, reward, done = [], [], []
-
+        # print("in")
         for i in range(self.batch_size):
             update_input[i] = mini_batch[i][0]
             action.append(mini_batch[i][1])
@@ -151,8 +161,8 @@ class DQNAgent:
         with self.tf_graph.as_default():
             error = self.model.fit(update_input, target, batch_size=self.batch_size,
                         epochs=10, verbose=0).history['loss']
-
-        return np.mean(error)
+            # print("error: ",error)
+            return np.mean(error)
 
 
     def get_model(self):
@@ -172,48 +182,34 @@ class DQNAgent:
         return dict_send
 
     def run(self, data):
+
+        data_train = data['mem'][32:]
+        # print(data_train)
+        for i in data_train:
+            self.append_sample(i[0], i[1], i[2], i[3], i[4])
         
-        if data['team'] == 0 : # radian
+        # print("befor")
+        error = self.train_model()
+        self.update_target_model()
 
-            data_train = data['mem'][32:]
-            # print(data_train)
-            for i in data_train:
-                self.append_sample(i[0], i[1], i[2], i[3], i[4])
-            
-            error = self.train_model()
-            self.update_target_model()
-
-
-            self.scoreTemp.append(data['all_reward']) 
-            # print("test")
-            # print(self.scoreTemp)
-        
-            
-
-        else:
-            # self.scoreTemp2.append(data['all_reward']) 
-            print("episode:", self.episodeNumber,"reward:", self.scoreTemp[-1])
-            
+        self.rewardKeep.append( data['all_reward'] )
         
 
-            if self.episodeNumber % 5 == 0:
-                self.scoresMean.append( np.mean( self.scoreTemp ) )
-                self.scoreTemp = []
-
-            if self.episodeNumber % 50 == 0:
-                pylab.figure(1)
-                pylab.plot( self.scoresMean, 'b')
-                pylab.savefig("./save_graph/image.png")
-
-                # pylab.figure(2)
-                # pylab.plot( self.scoreTemp2, 'r')
-                # pylab.savefig("./save_graph/image2.png")
-                
-
-                print("write")
+        print( data['all_reward'] )
+        if self.episodeNumber % 20 == 0:
+            
+            with self.tf_graph.as_default():
+                mean = np.mean( self.rewardKeep )
+                countKill = np.sum( self.countKeep )
+                print("mean: ",mean)
+                summary = self.sess.run(self.merged_summary_op,feed_dict={self.var_reward: mean, self.var_error: error } )
+                self.summary_writer.add_summary(summary, self.episodeNumber)
                 self.model.save_weights("weight_save.h5")
 
-            self.episodeNumber += 1
+            self.rewardKeep = []
+            self.countKeep = []
+    
+        self.episodeNumber += 1
         
           
      
