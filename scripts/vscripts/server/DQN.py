@@ -22,14 +22,14 @@ class DQNAgent:
     def __init__(self, state_size, action_size,num_hidden_node):
         # if you want to see Cartpole learning, then change to True
         self.render = False
-        self.load_model = False
+        self.load_model = True
         
         # get size of state and action
         self.state_size = state_size
         self.action_size = action_size
         self.num_hidden_node = num_hidden_node
 
-        logs_path = 'tmp/tensorflow_logs/weaver_120x120/'
+        logs_path = 'tensorflow_logs/shadowfield/'
 
         # These are hyper parameters for the DQN
         self.discount_factor = 0.99
@@ -183,33 +183,34 @@ class DQNAgent:
 
     def run(self, data):
 
-        data_train = data['mem'][32:]
-        # print(data_train)
-        for i in data_train:
-            self.append_sample(i[0], i[1], i[2], i[3], i[4])
-        
-        # print("befor")
-        error = self.train_model()
-        self.update_target_model()
-
-        self.rewardKeep.append( data['all_reward'] )
-        
-
-        print( data['all_reward'] )
-        if self.episodeNumber % 20 == 0:
+        if data['team'] == 0:
+            data_train = data['mem'][32:]
+            # print(data_train)
+            for i in data_train:
+                self.append_sample(i[0], i[1], i[2], i[3], i[4])
             
-            with self.tf_graph.as_default():
-                mean = np.mean( self.rewardKeep )
-                countKill = np.sum( self.countKeep )
-                print("mean: ",mean)
-                summary = self.sess.run(self.merged_summary_op,feed_dict={self.var_reward: mean, self.var_error: error } )
-                self.summary_writer.add_summary(summary, self.episodeNumber)
-                self.model.save_weights("weight_save.h5")
+            # print("befor")
+            error = self.train_model()
+            self.update_target_model()
 
-            self.rewardKeep = []
-            self.countKeep = []
-    
-        self.episodeNumber += 1
+            self.rewardKeep.append( data['all_reward'] )
+            
+
+            print( data['all_reward'] )
+            if self.episodeNumber % 20 == 0:
+                
+                with self.tf_graph.as_default():
+                    mean = np.mean( self.rewardKeep )
+                    countKill = np.sum( self.countKeep )
+                    print("mean: ",mean)
+                    summary = self.sess.run(self.merged_summary_op,feed_dict={self.var_reward: mean, self.var_error: error } )
+                    self.summary_writer.add_summary(summary, self.episodeNumber)
+                    self.model.save_weights("weight_save.h5")
+
+                self.rewardKeep = []
+                self.countKeep = []
+        
+            self.episodeNumber += 1
         
           
      

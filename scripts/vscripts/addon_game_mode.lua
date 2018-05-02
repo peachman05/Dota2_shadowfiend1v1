@@ -261,7 +261,7 @@ function CAddonTemplateGameMode:botEnemy_loop()
 
 	state['Dire'] = new_state['Dire']
 	------------------------
-	if timeStep % 5 == 0 then  --- force learning
+	if timeStep % 3 == 0 then  --- force learning
 		action['Dire'] = RandomInt(1, 8) - 1
 		-- action['Dire'] = GameControl:hero_force_think(GameControl.TEAM_DIRE)
 	else
